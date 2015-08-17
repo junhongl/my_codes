@@ -1,0 +1,22 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Create a volume from an existing snapshot
+
+parameters:
+
+
+resources:
+  ubuntu_volume:
+    type: OS::Cinder::Volume
+    properties:
+      name: jh-ubuntu-vol
+      size: 10
+      snapshot_id: 3dc6d488-2427-4744-b48b-461a8c8e7f79
+
+
+outputs:
+  ubuntu_volume_id:
+    description: The id of created volume
+    value: { get_resource: ubuntu_volume }
+

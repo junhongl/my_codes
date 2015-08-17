@@ -1,0 +1,56 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Create a volume from existing snapshot and boot a vm from that
+  volume.
+
+parameters:
+
+
+resources:
+  private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: heat-net1
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: private_net }
+      cidr: 192.168.19.0/24
+
+  ubuntu_volume:
+    type: OS::Cinder::Volume
+    properties:
+      name: jh-ubuntu-vol
+      size: 10
+      snapshot_id: 3dc6d488-2427-4744-b48b-461a8c8e7f79
+
+  server1:
+    type: OS::Nova::Server
+    properties:
+      name: Server1_original_ksc_zq
+      block_device_mapping_v2:
+        - delete_on_termination: True
+          boot_index: 0
+          volume_id: { get_resource: ubuntu_volume }
+      flavor: 6
+      networks:
+        - port: { get_resource: server1_port }
+
+  server1_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: private_net }
+      fixed_ips:
+        - subnet_id: { get_resource: private_subnet }
+
+
+outputs:
+  instance_ip:
+    description: IP address of the instance
+    value: { get_attr: [server1, first_address] }
+  server_name:
+    description: Name of the instance
+    value: { get_attr: [server1, name] }
+
